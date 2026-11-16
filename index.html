@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>是，鹤总</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+:root{--w:100vw;--h:100vh}
+@supports (height:100dvh){:root{--h:100dvh}}
+html{background:#05060c;overflow:hidden}
+body{background:#05060c;font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;height:var(--h);display:flex;align-items:center;justify-content:center;overflow:hidden}
+#stage{position:relative;flex:none;width:min(var(--w),calc(var(--h)*1.7778));height:min(var(--h),calc(var(--w)*.5625));font-size:min(calc(var(--w)*.0125),calc(var(--h)*.02222));overflow:hidden;cursor:pointer;color:#fff;background:#000}
+@media (pointer:coarse){
+#tx{font-size:calc(1.95em*var(--k,1))!important}
+#dlg{height:31%!important;left:5%!important;right:5%!important;padding:2.1em 2.4em 1.1em!important}
+#nm{font-size:1.65em!important}
+.hb{font-size:1.35em!important;padding:.35em 1em!important}
+.cb{font-size:1.8em!important}
+#menu{width:21em!important}#menu .cb{font-size:1.5em!important}
+#log{font-size:1.65em!important;padding:2em 9%!important}#log .cb{font-size:1em!important}
+#card p{font-size:1.75em!important;line-height:1.8!important}
+#card .st,#card .hint,#un{font-size:1.25em!important}
+#toast{font-size:1.5em!important}
+}
+@media (pointer:coarse) and (orientation:portrait){
+#stage{width:min(var(--h),calc(var(--w)*1.7778));height:min(var(--w),calc(var(--h)*.5625));font-size:min(calc(var(--h)*.0125),calc(var(--w)*.02222));transform:rotate(90deg)}
+}
+.serif{font-family:"Noto Serif SC","Source Han Serif SC","STZhongsong","SimSun",serif}
+.bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .8s}
+#vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,transparent 55%,rgba(0,0,10,.55)),linear-gradient(transparent 55%,rgba(4,6,18,.75));pointer-events:none}
+.sp{position:absolute;bottom:-7%;transform:translateX(-50%);opacity:0;transition:filter .35s,opacity .35s;filter:brightness(.6) saturate(.8);pointer-events:none;-webkit-user-drag:none}
+.sp.on{opacity:1}.sp.act{filter:drop-shadow(0 0 1.2em rgba(0,0,0,.45))}
+.sp.in{animation:in .4s ease-out}.sp.hop{animation:hop .28s ease-out}
+@keyframes in{from{opacity:0;translate:0 4%}to{opacity:1;translate:0 0}}
+@keyframes hop{50%{translate:0 -1.6%}}
+#spL{left:25%}#spR{left:67%}
+#hud{position:absolute;top:0;left:0;right:0;padding:1.2em 1.6em;display:flex;justify-content:space-between;align-items:flex-start;background:linear-gradient(rgba(4,6,18,.6),transparent)}
+#chap{font-size:1.15em;letter-spacing:.25em;color:#f3dfa8;border-left:.25em solid #e8c878;padding-left:.7em;text-shadow:0 .1em .4em #000}
+#btns{display:flex;gap:.5em}
+.hb{font:inherit;font-size:.95em;color:#e9e4d2;background:rgba(12,18,38,.6);border:1px solid rgba(232,200,120,.45);border-radius:2em;padding:.3em 1em;cursor:pointer;backdrop-filter:blur(4px);transition:.2s}
+.hb:hover,.hb.onx{background:#e8c878;color:#1a1408}
+#dlg{position:absolute;left:7%;right:7%;bottom:3.5%;height:27%;background:linear-gradient(rgba(14,20,44,.86),rgba(6,8,22,.94));border:1px solid rgba(232,200,120,.6);border-radius:1em;box-shadow:0 .6em 2.5em rgba(0,0,0,.6),inset 0 0 0 .25em rgba(255,255,255,.03);backdrop-filter:blur(7px);padding:2.4em 3em 1.5em}
+#dlg:before{content:"";position:absolute;left:2em;right:2em;top:.55em;height:1px;background:linear-gradient(90deg,transparent,rgba(232,200,120,.7),transparent)}
+#nm{position:absolute;left:2.2em;top:-1.35em;padding:.3em 1.6em .35em 1.3em;font-size:1.45em;font-weight:bold;letter-spacing:.1em;border-radius:.4em 1.4em .4em 1.4em;box-shadow:0 .2em .8em rgba(0,0,0,.5);text-shadow:0 .08em .2em rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.35)}
+#nm small{font-size:.58em;font-weight:normal;opacity:.92;margin-left:.9em;letter-spacing:.05em}
+#tx{font-size:calc(1.62em*var(--k,1));height:100%;overflow:hidden;line-height:1.6;letter-spacing:.04em;text-shadow:0 .08em .25em #000}
+#dlg.nar #tx{color:#d6dcf0}
+#dlg.th #tx{color:#a9d4ff;font-style:italic}
+#dlg.dict{border-color:#ffd866;background:linear-gradient(rgba(58,44,10,.9),rgba(22,16,4,.95))}
+#dlg.dict #tx{color:#ffe9a6;font-weight:bold}
+#nx{position:absolute;right:1.6em;bottom:.9em;color:#e8c878;font-size:1.2em;animation:bob 1s infinite;opacity:0}
+#nx.show{opacity:1}
+@keyframes bob{50%{transform:translateY(.35em)}}
+.shake{animation:shake .4s}
+@keyframes shake{20%{translate:-.6em .3em}40%{translate:.6em -.3em}60%{translate:-.4em -.2em}80%{translate:.4em .2em}}
+#ch{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.3em;background:rgba(4,6,18,.55);backdrop-filter:blur(3px);padding-bottom:8%}
+#ch .q{font-size:1.2em;letter-spacing:.4em;color:#e8c878;margin-bottom:.4em}
+.cb{font:inherit;font-size:1.55em;color:#fff;width:58%;padding:.75em 1.5em;cursor:pointer;background:linear-gradient(90deg,rgba(14,20,44,.94),rgba(30,40,80,.94));border:1px solid rgba(232,200,120,.65);border-radius:.6em;letter-spacing:.05em;transition:.2s;animation:in .4s backwards;box-shadow:0 .3em 1.2em rgba(0,0,0,.5)}
+.cb:hover{background:linear-gradient(90deg,#e8c878,#f6e3ae);color:#1a1408;transform:scale(1.03)}
+#toast{position:absolute;top:9%;left:50%;transform:translateX(-50%);background:rgba(10,14,30,.9);border:1px solid #e8c878;color:#ffe9a6;border-radius:2em;padding:.5em 1.8em;font-size:1.25em;opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1}
+.ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+#card{background:rgba(4,6,16,.86);backdrop-filter:blur(10px);gap:1.4em;padding:0 8%;animation:fade .6s}
+@keyframes fade{from{opacity:0}}
+#card .en{letter-spacing:.7em;color:#e8c878;font-size:1.1em}
+#card h1{font-size:5em;letter-spacing:.25em;background:linear-gradient(#fff6d8,#e8c878 60%,#b88a3a);-webkit-background-clip:text;color:transparent;padding-left:.25em}
+#card .ln{width:22em;height:1px;background:linear-gradient(90deg,transparent,#e8c878,transparent)}
+#card p{font-size:1.55em;line-height:2;color:#e6e2d4}
+#card .sub{font-style:italic;color:#bfc6e0}
+#card .hint{font-size:1em;color:#8d93ad;letter-spacing:.2em}
+#card .st{font-size:1.1em;color:#e8c878;letter-spacing:.1em}
+#log .cb{width:100%;font-size:1em;padding:.55em 1.2em;animation:none;text-align:left}
+#toast{z-index:6}
+#log{z-index:5;background:rgba(4,6,16,.93);backdrop-filter:blur(8px);justify-content:flex-start;align-items:stretch;text-align:left;padding:3em 14%;overflow-y:auto;gap:.9em;font-size:1.3em;line-height:1.7;cursor:default}
+#log h2{color:#e8c878;letter-spacing:.4em;text-align:center;margin-bottom:.6em}
+#log b{color:#f3dfa8;margin-right:.6em}#log .c{color:#8fd0ff}
+#title{background:#000 center/cover;justify-content:flex-start}
+#title:before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(6,10,40,.5),transparent 45%,rgba(4,6,18,.6))}
+#title>*{position:relative}
+#logo{margin-top:5.5%;font-size:9.5em;letter-spacing:.12em;font-weight:900;background:linear-gradient(#fffdf2,#ffe7a3 55%,#e0a94a);-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 .05em .08em rgba(20,10,60,.75))}
+#tsub{font-size:1.5em;letter-spacing:.55em;color:#fff;text-shadow:0 .1em .5em #124;margin-top:.2em}
+#tsub2{font-size:1.15em;letter-spacing:.2em;color:#ffeec4;text-shadow:0 .1em .5em #000;margin-top:.9em}
+#menu{position:absolute!important;right:3.5%;bottom:9%;display:flex;flex-direction:column;gap:.9em;width:17em;padding:1.4em;background:rgba(8,12,30,.6);border:1px solid rgba(232,200,120,.5);border-radius:1em;backdrop-filter:blur(6px)}
+#menu .cb{width:100%;font-size:1.3em;padding:.6em;animation:none}
+#un{font-size:.95em;color:#d9d3bd;letter-spacing:.1em}
+.hide{display:none!important}
+</style></head><body>
+<div id="stage">
+<div class="bg" id="bgA"></div><div class="bg" id="bgB"></div><div id="vig"></div>
+<img class="sp" id="spL" alt=""><img class="sp" id="spR" alt="">
+<div id="hud"><div id="chap" class="serif"></div><div id="btns"><button class="hb" id="ba">自动</button><button class="hb onx" id="bm">音效</button><button class="hb" id="bs">存档</button><button class="hb" id="bl">读档</button><button class="hb" id="bh">记录</button><button class="hb" id="bt">标题</button></div></div>
+<div id="dlg"><div id="nm"></div><div id="tx"></div><div id="nx">▼</div></div>
+<div id="ch" class="hide"></div>
+<div id="toast"></div>
+<div id="card" class="ov hide"></div>
+<div id="log" class="ov hide"></div>
+<div id="title" class="ov"><div id="logo" class="serif">是，鹤总</div><div id="tsub">YES, PRESIDENT CRANE</div><div id="tsub2">—— 一部关于“大家都很忙，但什么都没发生”的职场鸟类观察喜剧 ——</div>
+<div id="menu"><button class="cb" id="st">开始上班</button><button class="cb" id="ct">继续摸鱼（读档）</button><button class="cb" id="cs">章节选择</button><button class="cb" id="gl">结局图鉴</button><div id="un"></div></div></div>
+</div>
+<script>
+const S=`
+@ch 第一章|效率|“没有委员会解决不了的问题。如果有，就再成立一个。”
+@bg office
+旁|周一早晨九点，云栖科技。我叫麻小雀，今天起担任总经理助理。
+旁|入职培训只有一句话：“在这里，每个人都是一只鸟。飞得高的负责喊，飞得低的负责干，不会飞的负责报销。”
+旁|人事介绍说，公司实行弹性工作制。我后来才理解它的意思：上班时间是固定的，下班时间很有弹性。
+旁|人事还说，这个岗位的前任“另有高就”。后来我才知道，“高就”指的是他去了楼上天台冷静。
+旁|他的工位上还留着两件遗物：一盆枯死的绿萝，和一本翻烂的《如何听懂领导说话》。
+鹤|小雀！来得正好。我昨晚想了一整夜，终于想明白公司的问题在哪了。
+我|在哪，鹤总？
+鹤|*效率！我们要提高效率！要大刀阔斧，要雷厉风行，要——具体怎么做你记一下。
+我|您说。
+鹤|……我说完了。
+我|（笔记本上，我只写下了两个字：“效率”。后面跟着一个很大的问号。）
+旁|门被轻轻敲了三下。行政总监萧主任走了进来，脚步无声，像一只夜里的猫头鹰。
+鸮|鹤总，听说您有了一个“勇敢”的想法。
+鹤|勇敢？这是在夸我吧？
+典|“这个想法有争议” ＝ 您会挨骂。“这个想法很勇敢” ＝ 您会下岗。
+鸮|提高效率，高瞻远瞩。不过此事牵一发而动全身，不宜贸然行动。我建议先成立一个“效率提升委员会”，下设筹备组、调研组、监督组，以及监督监督组的协调组。
+鹤|……小雀，他这是同意还是反对？
+我|（小声）他同意您的目标，反对您做任何事。
+鹤|需要多少人？
+鸮|初步估算，四十二人。另需一间会议室、一台咖啡机，和一位级别足够高的主任——我勉为其难。
+鹤|为了提高效率，我们要先多招四十二个人？
+鸮|鹤总，没有人负责效率，效率由谁负责呢？总不能让干活的人负责吧，他们还要干活。
+?“鹤总，我觉得萧主任说得有道理。”=>1a;x+1
+?“鹤总，这听起来像是用汽油灭火。”=>1b;h+1,z+1
+?“两位说得都对。”=>1c
+#1a
+鸮|小雀很有前途。
+鹤|是吗？那……就这么办？
+我|（我感觉自己刚刚亲手把一件事埋了，还顺便帮忙填了土。）
+>1e
+#1b
+鹤|*对啊！汽油！
+鸮|小雀的比喻很生动。不过汽油也是能源，鹤总，而能源就是生产力。
+鹤|……好像也对。
+我|（我说了真话，然后亲眼看着它被回收再利用了。）
+>1e
+#1c
+鸮|这位年轻人入职第一天，就掌握了本公司的核心技术。
+我|（前任的那本书第一页写着：“永远不要反对任何人，尤其不要同意任何人。”我好像无师自通了。）
+#1e
+旁|当天下午，效率提升委员会正式成立。第一项决议：鉴于工作繁重，委员会每周只开一次会。
+旁|第二项决议：第一项决议有待进一步研究。
+旁|第三项决议：采购一台新咖啡机，供委员会专用。全票通过，用时四秒。这是公司史上最高效的一次决策。
+@ch 第二章|透明|“我们什么都可以公开，除了内容。”
+@bg meeting
+鹊|好消息好消息！鹤总，我们的用户增长率创了历史新高！
+鹤|多少？
+鹊|百分之两百！
+我|喜经理，请问基数是？
+鹊|上个月一个，这个月三个。其中两个是我妈和我姨。
+鹊|还有个好消息：竞争对手把我们告了！这说明终于有人注意到我们了！
+鹤|……这样下去不行。我决定了，公司要搞“透明办公”！所有数据全员公开！
+鸮|鹤总，我完全、彻底、毫无保留地支持透明。
+鹤|真的？
+鸮|当然。只是鹤总，透明的前提是被正确地理解，而正确理解的前提，是具备理解所必需的背景。鉴于绝大多数同事并不具备这种背景，把未经解释的信息直接交到他们手中，与其说是公开，不如说是制造误解；而误解恰恰是真相的反面，真相又恰恰是透明的目的。所以，正是为了捍卫透明，有相当一部分内容，我们必须义无反顾地予以保密。
+鹤|……你能再说一遍吗？
+鸮|可以，鹤总。但再说一遍，只会更长。
+鹤|那至少把工资公开！
+鸮|工资公开会伤害两种人：拿得少的会难过；拿得多的，会被拿得少的人弄得很难过。出于人道主义，建议保密。
+鹤|小雀，他刚才到底说了什么？
+?“他说：不行。”=>2a;h+1,z+1
+?“他说：原则上可以。”=>2b;x+1
+?“等我把会议纪要整理完就知道了。”=>2c
+#2a
+鸮|小雀，我用了一百多个字，层层递进，首尾呼应，你把它压缩成了两个字。这不叫概括，这叫对一门手艺的暴力拆迁。
+鹤|但他压缩得对不对？
+鸮|……原则上不能说不对。
+>2e
+#2b
+鹤|*太好了！原则上可以！
+典|“原则上可以” ＝ 不行。“原则上不行” ＝ 你再求求我。
+我|（我决定让鹤总多开心五分钟。这是我今天做的唯一一件好事。）
+>2e
+#2c
+鸮|很好。纪要的作用不是记录发生了什么，而是记录事后大家希望发生过什么。
+我|（于是在纪要里，鹤总英明决策，萧主任坚决拥护，而我，全程没有出现。这是最安全的出场方式。）
+#2e
+鹊|那我马上发通稿！标题就叫《云栖科技全面拥抱透明》！
+鹤|内容呢？
+鹊|内容保密。
+旁|通稿反响热烈。评论区第一条写着：“终于有一家公司，敢于公开自己什么都不公开。”
+鹊|好消息！我们上热搜了！“年度迷惑行为”榜，第一名！
+@ch 第三章|调研|“只要问题问得好，答案自己就会站好队。”
+@bg meeting
+旁|“透明”通稿上了热搜之后，鹤总三天没睡好。他得出一个结论：必须听听员工的真实想法。
+鹤|我要做一次全员匿名调研！我要知道大家对公司到底满不满意！
+鸮|明智之举，鹤总。请问您希望调研的结果是什么？
+鹤|……结果不是应该调研完才知道吗？
+鸮|鹤总，只有业余人士，才会在调研之后才知道结果。
+鹊|好消息！问卷我来设计！鹤总想要“满意”，还是“不满意”？
+鹤|问卷还能指定答案？！
+鸮|小雀，你来配合喜经理示范一下。照实回答即可。
+鹊|小雀，你希望公司稳定发展吗？
+我|希望。
+鹊|你认为同事之间应该互相体谅吗？
+我|应该。
+鹊|你是否认同，光靠抱怨解决不了问题？
+我|……认同。
+鹊|那么总体而言，你对公司满意吗？
+我|……满意。
+我|（我愣了一下。我每一句都是照实回答的，怎么加起来就变成了这个。）
+鹤|可是……那如果我想要“不满意”呢？
+鹊|一样的！小雀，你上一次按时下班是什么时候？
+我|……入职体检那天。
+鹊|茶水间的咖啡机修好了吗？
+我|没有。
+鹊|你知道研发二部五十个人不写代码，奖金是你的三倍吗？
+我|*多少？！
+鹊|那么总体而言，你对公司满意吗？
+我|*不满意！
+鹊|你看，同一只麻雀，两种民意。
+鸮|所以鹤总，调研从来不是用来了解情况的。它的用途是：在您做了决定之后，证明那是大家的意思。
+鹤|那……匿名总是真的吧？
+鹅|匿名。问卷须用工号登录后填写，以确保每位匿名者只匿名一次。
+?“鹤总，就用第一套问卷吧，大家都省心。”=>sa;x+1
+?“两套都别用。您去茶水间站十分钟，什么都听得到。”=>sb;z+1,h+1
+?“我建议先调研一下，大家想不想被调研。”=>sc
+#sa
+鸮|小雀进步很快。
+旁|调研结果：员工满意度97%。
+>se
+#sb
+鹤|好主意！我这就去！
+旁|鹤总在茶水间站了十分钟。因为他站在那里，十分钟内没有一个人说话。
+鹤|小雀，大家都很安静，看来没什么意见。
+我|（他离真相只有一步之遥，然后稳稳地绕了过去。）
+旁|最终还是用了第一套问卷。调研结果：员工满意度97%。
+>se
+#sc
+鸮|严谨。那就先成立一个“调研可行性调研组”。
+旁|调研组忙了三天，结论是：97%的员工愿意被调研。
+旁|鹤总觉得这个数字很吉利，直接把它当成了满意度。
+#se
+鹤|97%！太好了！……那剩下的3%是谁？
+鸮|已经找到了。
+鹤|不是匿名的吗？
+鸮|是匿名的。只是这几位同事，恰好都出现在了下一批“优化”名单里。纯属巧合。
+旁|第二天，公司大厅挂出了横幅：“热烈庆祝员工满意度达到100%”。
+@ch 第四章|预算|“节约，是要花钱的。”
+@bg pantry
+旁|茶水间。咖啡机坏了很久，上面贴着一张发黄的纸条：“维修申请流转中”。
+旁|一只蜘蛛在机器上安了家。据说它是这层楼唯一每天按时结网、按时完成指标的员工。
+鹅|换咖啡机？可以。填A-38表，附三家比价，经部门、行政、财务、法务、工会、效率提升委员会会签。
+我|一共多少个签字？
+鹅|十七个。其中第九位签字人去年已经离职，流程会在他那里自动等待。
+我|等多久？
+鹅|等到他回来。
+我|他还会回来吗？
+鹅|他的离职申请也卡在流程里。所以理论上他仍然在职，只是人不在了。工资照发，这点我很羡慕。
+鸽|咕……早。小雀，听说鹤总在问新版本什么时候上线？
+我|是的，原定是上个季度。
+鸽|快了快了，下周。
+我|您上周也说下周。
+鸽|对呀，我的口径一直很稳定。做技术的，最重要的就是稳定。再说，我也没说是哪个下周。
+@bg office
+鹤|*岂有此理！今年必须削减开支！老萧，哪个部门最花钱？
+鸮|是“研发二部”，鹤总。共五十人，年度预算八百万。
+鹤|他们开发什么？
+鸮|他们不开发。研发二部目前有五十名管理人员，暂无程序员。
+鹤|*没有程序员的研发部？！
+鸮|正因如此，他们连续三年零故障、零延期、零投诉，去年刚拿了集团“最佳运营奖”。一旦招了程序员，这些指标就全毁了。
+我|（不干活，就不会犯错。不犯错，就会得奖。我好像突然理解了这家公司的全部晋升机制。）
+?“鹤总，砍掉它！”=>3a;h+1,z+1
+?“鹤总，获奖部门动不得。”=>3b;x+1
+?“不如把坏掉的咖啡机划给研发二部管理？”=>3c;z+1
+#3a
+鸮|当然可以。裁撤需先成立裁撤工作组，预算约九百万。
+鹤|比留着还贵？！
+鸮|节约是要花钱的，鹤总。而且我们不说“裁员”，我们说“向社会输送人才”。
+>3e
+#3b
+鸮|明智。而且他们已申请明年扩编至八十人，理由是“管理任务日益繁重”。
+鹤|他们管理谁？
+鸮|彼此。
+>3e
+#3c
+鸮|……有趣的提议。五十名管理人员，管理一台咖啡机。
+鹤|能修好吗？
+鸮|修不好。但会有一份非常漂亮的周报，以及一个关于咖啡机的五年规划。
+#3e
+旁|为了表示降本增效的决心，公司还是推出了三项措施：取消下午茶；卫生间的纸巾换成更薄的型号；设立“降本增效办公室”，编制八人，负责监督前两项的落实。
+旁|最终方案：开支一分不减，但“开支”一词在财报中统一改称“战略性投入”。
+鹅|这样，开支就降为零了。
+典|“战略性投入” ＝ 钱没了。“优化” ＝ 人没了。“毕业” ＝ 你没了。
+@ch 第五章|天台|“每一个不干活的人，都曾经认真干过一次。”
+@bg title
+旁|傍晚，加班开始前的二十分钟，我上了天台。前任助理就是来这里“冷静”的，我想看看这里到底有什么。
+旁|天台上什么都没有。只有风、栏杆，和栏杆上的一排鸟。它们排得整整齐齐，谁也不动，像极了我们的周会。
+鸽|咕……你也来冷静？
+我|白主管？您在这儿干什么？
+鸽|写代码啊。楼下每十分钟就有人来问我“写完了吗”，我就得停下来回答“快了”。一天回答四十次，就什么也写不完。
+我|那您在这儿写了多少？
+鸽|也没写。但至少没人问。
+我|白主管，您有没有按时交付过？一次也行。
+鸽|有啊。三年前，我带着组里熬了两个月，提前一周上线，零故障。
+我|然后呢？
+鸽|然后鹤总说：“既然两个月能做完，下个版本就给你们一个月吧。”
+鸽|一个月，我们也做完了。于是再下一个版本，给了两周。
+鸽|那年我组里走了四个人，其中一个是被救护车拉走的。我就明白了：在这家公司，按时完成，是一种会被惩罚的行为。
+鸽|从那以后我只说“下周”。你看，现在大家身体都很好。
+我|（我一时不知道该说什么。这是我入职以来，听到的第一段逻辑完全自洽的话。）
+鹅|让一下。你们挡住我的位置了。
+我|齐总监？您也来……冷静？
+鹅|我来看鸟。它们飞来飞去，不用报销差旅费。很解压。
+我|齐总监，我一直想问：换一台咖啡机，为什么非得要十七个签字？
+鹅|以前只要一个。我的。
+鹅|五年前，我特批过一笔没走流程的报销。三千块，给一位同事垫医药费。事情很急，我就签了。
+鹅|后来审计查了我三个月，访谈四十人次，出了一份两百页的报告，花了公司三十万。结论是：我没有问题，但流程有风险。
+鹅|于是签字从一个变成了十七个。现在无论出什么事，每个人都只有十七分之一的责任，约等于没有。
+鹅|这套流程不是用来办事的，小雀。它是用来保证出事以后，找不到任何一个具体的人。
+我|那位同事，后来还钱了吗？
+鹅|还了。他就是第九位签字人。
+旁|风吹过天台。栏杆上的鸟还是一动不动。
+?“我明白了。以后我也少做少错。”=>ra;x+1
+?“可是，总得有人把事情办成吧？”=>rb;z+1
+?“……所以前任助理到底去哪了？”=>rc
+#ra
+鸽|咕。恭喜，你转正了。
+鹅|明智。记得把这句话写进年终总结。换个说法，叫“稳健推进”。
+>re
+#rb
+鸽|办成了，功劳是委员会的。办砸了，责任是你的。你确定？
+我|……确定。
+鹅|好。那你最好现在就开始攒签字。我可以给你第一个。
+旁|她掏出印章，在我的笔记本上盖了一下。上面刻着四个字：“下不为例”。
+>re
+#rc
+鸽|他啊？他就在这儿办公。
+我|*在天台？！
+鸽|人事没骗你，他确实“高就”了。顶楼加盖了一间“战略储备办公室”，全公司位置最高。没有网，没有电话，也没有工作。
+鹅|公司从不开除人，开除要赔钱。公司只是把人放到一个他自己会想走的地方。
+旁|我顺着她的目光看去。天台角落有一间小铁皮房，窗台上摆着一排绿萝，长得非常好。
+旁|里面的人冲我挥了挥手。他是我在这家公司见过的，气色最好的人。
+#re
+旁|七点整，加班开始了。我们排成一排下楼，谁也没说话，像一排刚开完周会的鸟。
+@ch 第六章|团建|“自愿参加。不参加者，请提交书面说明。”
+@bg bar
+旁|周五晚上，公司团建。地点是楼下的居酒屋，名叫“倦鸟”。
+旁|通知上写着“自愿参加”，后面的括号里写着“缺席将计入年度考核”。
+鹤|同志们！公司就是我们的家！
+鸽|咕……所以回不了家也没关系，是吧。
+鹤|能加班是一种福气！外面多少人想加班，还没有班可加呢！
+鸽|咕……那把我的福气匀一点给他们吧，我不贪心。
+鹤|另外宣布一个好消息：公司决定，给在座每一位同事发放期权！
+鹅|补充说明。行权条件：公司上市。上市条件：须先向监管部门说明公司的主营业务。
+旁|大家举着杯子愣了两秒，然后默默地把那句“谢谢鹤总”咽了回去。
+鹦|*大家好！我是实习生英武！请多关照！
+鹊|小英最大的优点就是学得快，听什么会什么。
+鹦|听什么会什么！
+鸽|咕……那可千万别让她听见不该听的。
+鹦|不该听的！
+旁|三杯过后，气氛松弛下来。萧主任端着清酒，罕见地露出了微笑。
+鸮|小雀，你知道公司为什么需要我吗？
+我|为什么？
+鸮|鹤总负责决定去哪里，我负责确保我们留在原地。有方向而不移动，这叫稳健。
+鹦|*确保我们留在原地！
+鹤|嗯？谁在说留在原地？
+旁|全场安静。鹤总举着啤酒杯，脸上是领导特有的、只听到了后半句的表情。
+?“是小英在背诵企业文化。”=>4a;x+1
+?“鹤总，萧主任在夸您定力好。”=>4b;h+1
+?“是萧主任说的，原话比这更长。”=>4c;z+1,h+1,x-1
+#4a
+鹤|我们的企业文化是“留在原地”？
+鹊|好消息！那我们已经百分之百达成了！
+鸮|（低声）小雀，反应不错。说谎不难，难的是说得像一份文件。
+>4e
+#4b
+鹤|哈哈哈，老萧过奖！我确实很有定力。
+鸮|（低声）小雀，你刚才救了我。我不会忘的，除非有必要。
+>4e
+#4c
+鸮|小雀非常坦率。坦率是一种宝贵的品质，宝贵在于少见，而它少见是有原因的。
+鹤|老萧，周一来我办公室。
+鸮|好的鹤总。我会提前成立一个委员会，来准备这次谈话。
+#4e
+旁|散场时，鸽子说他去结账，然后再也没人见过他。
+旁|账单最后由齐总监垫付。她要求每人补填一张A-38表。
+我|（在“报销事由”一栏，我认真地填了两个字：工伤。）
+@ch 第七章|周末|“不急，周一早上给我就行。”
+@bg home
+旁|周六早上八点。我租的房间十二平米，月租是工资的一半。唯一的优点是窗外风景开阔——正对着公司大楼。
+旁|手机震了一下。是工作群。
+鹤|大家周末愉快！一定要好好休息！
+鹤|顺便，我刚才晨跑时有个小想法。不急。
+旁|“不急”的后面，跟着十四条语音，每条五十九秒。
+旁|我花了十四分钟听完，总结如下：公司需要一句响亮的口号。周一早上要。
+鹊|收到！鹤总的想法太有高度了！
+鹦|收到！鹤总的想法太有高度了！
+鹅|收到。另：周末加班须提前三个工作日填写A-38表申请。本次未申请，故不属于加班，属于个人爱好。
+旁|白歌没有回复。根据经验，他会在周三回一个“咕”。
+旁|手机又响了。这次是电话。
+鸮|小雀，我只是提醒你：周末是法定休息时间，公司绝不鼓励加班。
+我|谢谢萧主任。
+鸮|所以鹤总要的东西，希望你能在周一之前，利用休息时间“自然而然地”完成。另外，这通电话没有打过。
+旁|我刚放下手机，它又响了。这次是我妈。
+旁|她问了三个问题：吃了吗，有对象了吗，以及——“你们公司到底是做什么的？”
+我|（前两个我答得很快。第三个，我入职以来一直想问别人。）
+我|妈，这个问题非常好。公司已经成立了一个委员会，正在研究。
+旁|我妈沉默了一会儿，说：“听着挺稳定的。”
+旁|下午四点，我写出了三句口号。交哪一句呢？
+?“云栖科技：永远在路上。”=>wa;x+1
+?“云栖科技：今天也什么都没发生。”=>wb;z+1
+?“云栖科技：鹤舞九天，一飞冲天！”=>wc;h+1
+#wa
+旁|周一，萧主任看了很久，缓缓点头。
+鸮|“永远在路上”。意思是永远不到。准确，体面，而且外人听不出来。就它了。
+>we
+#wb
+旁|周一，鹤总看了一眼，眉头皱了起来。
+鹤|这句……是不是太谦虚了？
+鹊|好消息！法务说，这是全公司唯一一句不涉及虚假宣传的话！
+旁|口号没有被采用。但听说后来有人把它偷偷写在了茶水间的咖啡机上。
+>we
+#wc
+旁|周一，鹤总当场把它念了三遍，一遍比一遍大声。
+鹤|*好！有气势！有我！
+鸮|（低声）小雀，下次把“冲天”换成“稳步上升”。冲上去的东西，按照惯例，都得有人负责接住。
+#we
+旁|然后鹤总在群里宣布：口号的事先放一放，他周日晚上又有了一个新想法。
+旁|这一次他说：“很急。”
+旁|根据经验，“很急”的事，到周三就没人记得了。真正要命的，永远是那些“不急”的。
+@ch 第八章|创新|“它什么都能替代，除了负责。”
+@bg office
+旁|鹤总周日晚上的新想法，来自一本飞机杂志。那篇文章一共两页，他读了第一页。
+鹤|*小雀！老萧！我们要全面拥抱人工智能！
+鸮|鹤总高瞻远瞩。请问具体用人工智能做什么？
+鹤|做……智能的事！别的公司都有了，我们不能没有！
+鸽|咕……其实，我上周做了一个。
+旁|所有人都转过头。白歌说“做了一个”，这在公司历史上还是头一回。
+鸽|是个自动回复机器人。我用自己三年的聊天记录训练的。现在不管谁来催进度，它都能替我回答。
+鹤|它会回答什么？
+鸽|“快了，下周。”
+鸽|准确率百分之百。上线一周，没有一个人发现那不是我。
+我|（包括我。我上周和它聊了四次，还觉得白主管最近回消息变快了。）
+鹤|*这算什么人工智能！我要的是能辅助决策的！能替公司省钱的！
+鸽|……也有。我顺手把公司十年的会议纪要和红头文件都喂给它了。它现在能回答管理问题。
+@bg meeting
+旁|十分钟后，会议室。投影上是一个对话框，名字叫“小云”。
+鹤|咳。小云，我们公司应该如何提高效率？
+旁|屏幕上缓缓出现一行字：“这是一个非常好的问题。建议成立专项委员会，在充分调研的基础上稳妥推进。”
+鹤|*它跟老萧一模一样！
+鸮|……
+旁|入职以来，我第一次看见萧主任的笑容消失了。
+鸮|鹤总，我必须指出，这东西很危险。它说这些话不要工资，这是对我们整个行业的不正当竞争。
+鹤|可它说得跟你一样好啊。
+鸮|区别在于责任，鹤总。它如果说错了，没有人负责。
+鹤|那你说错了呢？
+鸮|也没有人负责。但我的流程更完整。
+鹤|我再问一个。小云，公司要削减开支，从哪里下手最有效？
+旁|这一次，它思考了很久。然后屏幕上出现了一份名单。
+旁|第一行：总经理。备注：“年薪最高，近三年决策均未落地，可由本系统替代。”
+旁|第二行：行政总监。备注：“功能与本系统完全重复。”
+旁|会议室安静了三秒。
+鹤|老萧。
+鸮|鹤总。
+鹤|我认为这项技术……还不成熟。
+鸮|我完全、彻底、毫无保留地同意。
+旁|这是我入职以来，第一次看到这两位在三秒之内达成一致。
+?“我同意两位领导。建议成立委员会，研究AI的风险。”=>na;x+1,h+1
+?“可是它给的名单……好像没算错。”=>nb;z+1
+?“那小云怎么处理？它知道的可不少。”=>nc
+#na
+鸮|很好。那就成立“人工智能治理委员会”，编制十二人。
+鸽|咕……用十二个人，管一个谁也替代不了的机器人？
+鸮|白主管，这恰恰说明它创造了十二个就业岗位。科技向善。
+>ne
+#nb
+旁|鹤总和萧主任同时看向我。那是两种不同的眼神，但意思是一样的。
+鹤|小雀，你今天是不是没休息好？
+鸮|年轻人容易被数字迷惑。数字是不会说谎的，所以才需要我们替它解释。
+>ne
+#nc
+鸮|好问题。直接关掉太可惜，毕竟创新是鹤总亲自倡导的。
+鸮|我建议把它的服务器搬到天台去。那里没有网，没有电，风景很好，适合做战略储备。
+#ne
+旁|当天下午，全员收到通知：公司的人工智能战略取得阶段性成果，项目圆满结项。
+旁|小云只被保留了一项功能：替白歌回复“快了，下周”。
+旁|据说，这是公司唯一一个真正上线、并且用户零投诉的产品。
+@ch 第九章|黑话|“一句话只要能被听懂，就能被追究。”
+@bg meeting
+旁|周三，周报评审会。鹤总刚参加完一个三天两夜的“企业家领导力闭门研修营”，学费十九万八。结业时每人发了一本笔记本，和一套全新的说话方式。
+鹤|*同志们！接下来，我们要找准抓手，打通闭环，沉淀方法论，打出组合拳，最终实现对用户的全面赋能！
+我|（我照例做了会议记录。写完一看，每个字我都认识，合起来等于什么都没写。）
+鹤|另外，我们要有狼性！狼性，懂吗！
+鸽|咕……狼不写周报。
+鹤|下面开始评审。白歌，念你的周报。
+鸽|本周修复了登录页崩溃的问题。完了。
+鹤|就这？太细了！没有高度！你的思考呢？你的底层逻辑呢？你为公司沉淀了什么？
+鸽|……沉淀了一个不崩溃的登录页。
+鹤|下一个！小英！
+鹦|到！本周，我以用户价值为抓手，对齐了各方的颗粒度，拉通了上下游资源，跑通了最小闭环，并沉淀出了一套可复用的方法论！
+鹤|*好！！这才叫周报！有抓手，有闭环，有沉淀！大家都学学！
+旁|会议室里响起了掌声。散会后，我在走廊拦住了英武。
+我|小英，你这周具体做了什么？
+鹦|我订了一次会议室！
+我|……那“抓手”是？
+鹦|会议室的门把手呀！“对齐颗粒度”是问大家几点有空，“拉通资源”是拉了个群，“跑通闭环”是会开完了！
+我|那“可复用的方法论”呢？
+鹦|下次还订这一间！
+我|（她说得坦坦荡荡，眼睛里全是光。我意识到她不是在撒谎——她是真心相信，这两种说法是同一件事。也许她才是对的。）
+旁|走廊拐角，萧主任不知已经站了多久。
+鸮|小雀，不要小看这门语言。一句话要是能被听懂，就能被执行；能被执行，就能被检查；能被检查，就能被追究。
+鸮|“赋能”和“闭环”的好处就在这里：谁也听不懂，所以谁也不用负责。
+我|所以鹤总那段话的意思是……
+鸮|没有意思。这正是它的意思。
+旁|下午轮到我交周报。我这周的实际工作是：帮鹤总订了三次外卖，把一份PPT的字体改了十一版。
+?照实写：“订外卖三次，改字体十一版。”=>ja;z+1
+?“以领导需求为抓手，闭环了三次能量补给，迭代了十一版视觉方法论。”=>jb;h+1
+?把英武的周报抄一遍，改个名字=>jc;x+1
+#ja
+鹤|小雀，你这个……格局小了。
+鸽|咕……我觉得挺好。这是本周全公司唯一一份我看得懂的周报。
+旁|我的周报被当作反面教材全员传阅。一夜之间，所有人都知道了鹤总一周要吃三次黄焖鸡。
+>je
+#jb
+鹤|*好！小雀也出师了！“能量补给”这个词很有想象力，回头写进公司战略里！
+我|（我盯着“视觉方法论”五个字，第一次对自己感到陌生。）
+>je
+#jc
+鹤|嗯？这份怎么和小英的一模一样？
+鸮|鹤总，这恰恰说明，团队的认知已经高度对齐了。
+鹤|有道理！对齐得好！
+#je
+旁|鹤总深受鼓舞，当场宣布：周报太慢，跟不上公司的发展节奏。即日起，周报改为日报。
+旁|于是从这天起，每个人每天要花两小时，认真汇报自己今天因为写日报而没来得及做的事。
+旁|月底统计：全公司共产出日报两千一百份，代码零行。白歌的日报是让小云代写的。至于小云自己的日报，没有人敢打开看。
+旁|英武因为“表达与公司战略高度一致”，被评为季度高潜人才。她高兴极了，给全公司每人发了一颗糖。她是真的觉得，这里的每个人都对她很好。
+@ch 第十章|舆情|“网传内容不实。具体哪里不实，不便透露。”
+@bg office
+旁|周五早上，一条匿名帖子上了热搜：《在某科技公司上班是什么体验：咖啡机坏了三年，委员会开了四十个》。
+旁|帖子不长，但句句属实。评论区第一条是：“这种公司居然还没倒？”第二条是：“还招人吗？听起来很稳定。”
+鹤|*这是造谣！是抹黑！是别有用心！
+鹊|好消息！帖子阅读量破千万了！公司成立以来，头一回有这么多人知道我们！
+鹤|他们知道的是什么，你看了吗？！
+鹊|看了！所以声明我也写好了：“网传内容严重不实。我司咖啡机并未损坏，而是处于战略性休眠状态。对造谣者，我司保留追究法律责任的权利。”
+我|喜经理，可帖子里说的都是真的。
+鹊|所以才要说“不实”呀。要是假的，不理它就行了。
+鹤|老萧！你说怎么办！
+鸮|鹤总不必慌张。应对此类事件，行政系统有一套成熟的四步工作法，行之有年，从未失手。
+鸮|第一步，我们声明：什么都没有发生。
+鸮|第二步，我们表示：也许发生了一点什么，但情况复杂，不宜仓促行动。
+鸮|第三步，我们承认：也许确实应该做点什么，但很遗憾，目前没有什么是我们能做的。
+鸮|第四步，我们总结：当初也许是可以做点什么的，但是现在，已经太迟了。
+鹤|……四步走完，问题解决了吗？
+鸮|问题不会解决，鹤总。但四步走完，一般已经过去三个星期。而网友的记性，据我长期观察，只有三天。
+鹤|*不行！我咽不下这口气！给我查！把发帖的人揪出来！
+鹅|可以查。全员上交手机须逐人签署同意书，经法务审核，共计两百一十份表格。预计耗时三周。
+鸽|咕……不用那么麻烦。帖子是从公司内网发出去的，我看一眼日志，就知道是哪台电脑。
+旁|办公室里忽然安静下来。每个人都在脑子里飞快地回忆，自己最近有没有在网上说过实话。
+旁|十分钟后，白歌抱着电脑回来了。他的表情很奇怪。
+鸽|查到了。发帖时间：昨晚十一点四十。发帖位置……
+鸽|总经理办公室。
+旁|所有人慢慢地转向了鹤总。
+鹤|……
+鹤|我、我就是随便写写！我想提高效率，没人理我！我想搞透明，搞成了保密！我每天晚上都睡不着，就想找个没人认识我的地方，说两句心里话！
+鹤|*我哪知道会有一千万人看！
+旁|没有人说话。我忽然发现，全公司对这家公司最不满意的那个人，原来一直坐在最大的那间办公室里。
+?“鹤总，不如承认吧。就说这是总经理带头做的‘自我批评’。”=>ya;z+1,h+1
+?“萧主任，我们现在该走第几步？”=>yb;x+1
+?“白主管，日志这种东西……会不会刚好坏了？”=>yc;h+1
+#ya
+鹤|承认？那我的脸往哪儿搁？
+鹊|好消息！这个角度太好了！《敢于向自己开炮：一位总经理的深夜独白》——又是一千万阅读！
+鸮|……勇敢。非常勇敢。
+旁|鹤总犹豫了整整一分钟。这是我见过的，他离真话最近的一次。
+旁|然后他说：“再研究研究。”
+>ye
+#yb
+鸮|问得好。考虑到发帖人的特殊身份，我建议直接跳到第四步。
+鸮|对外口径：经查，此事系竞争对手雇佣网络水军恶意抹黑，我司已报案。对内口径：此事不再讨论。
+>ye
+#yc
+鸽|咕……巧了。我刚想起来，那台日志服务器坏了，下周才能修好。
+鹅|修理须填A-38表。我会确保它流转得慢一点。
+旁|这是我第一次看到，全公司为了同一个目标，如此高效地团结在一起。
+#ye
+旁|最终的声明只有一句话：“网传内容不实。具体哪里不实，不便透露。”
+旁|三天后，网友果然忘了这件事。只有一个后果留了下来：
+旁|集团总部有一位从不上网的老人。他的秘书把那篇帖子打印出来，放在了他的桌上。
+@ch 第十一章|绩效|“人人都很优秀，但必须有人不合格。”
+@bg office
+旁|月底，绩效考核。集团规定：每个部门必须有10%的人被评为“不合格”，以保持队伍的活力。
+旁|这个制度叫“末位淘汰”。大家私下叫它“抽签”。
+鹅|各部门名单基本交齐。研发二部五十人，不合格五人，已连续三年按时上报，是全公司最配合的部门。
+鹤|他们什么都不干，怎么评得出谁不合格？
+鹅|他们每年专门招五个人，岗位名称叫“绩效专员”。职责就是在年底被评为不合格，领补偿金走人。
+鸮|这是研发二部的一项管理创新。那五位同事入职时就知情，待遇从优，来去体面，大家都很满意。
+我|（我算了一下。那五个人，是研发二部唯一有明确产出的岗位。）
+鹅|另外提醒：白主管下个月年满三十五周岁。按集团惯例，将自动列入“优化观察名单”。
+鸽|咕……不会的。我在人事系统里的出生日期，填的一直是“下周”。
+鹤|好，那就没问题了。还有哪个部门没交？
+鹅|总经理办公室。
+鹤|我的办公室？一共才几个人？
+鹅|编制两人。鹤总您，和小雀。
+旁|办公室安静了下来。两个人的10%，是0.2个人。
+鹅|按规定，向上取整。一人。
+旁|鹤总看了看我。我看了看鹤总。萧主任看了看窗外，嘴角动了一下。
+鹤|小雀啊，你来公司这段时间，我一直很看好你——
+我|（“我一直很看好你”。前任留下的那本书里有这句话。在最后一章，章名叫《告别》。）
+?“鹤总，评您不合格，更能体现公司敢于刀刃向内。”=>pa;z+1
+?“鹤总，我自愿不合格。只求明年还能见到您。”=>pb;h+1
+?“萧主任，行政部能不能借我们一个人？”=>pc;x+1
+#pa
+鹤|*什么？！
+鸮|小雀的建议，很勇敢。
+我|（又是“勇敢”。我后背一凉。）
+鸮|不过鹤总，仔细想想：总经理带头不合格，传出去就是“管理层以身作则”。
+鹊|好消息！标题我都想好了：《从我做起——一位总经理的自我淘汰》！
+鹤|*不行！换一个办法！
+>pe
+#pb
+鹤|小雀！你这份觉悟……我记住了！
+鹅|提醒：不合格者年终奖为零，并自动进入下一批优化观察名单。
+我|……鹤总，我想重新自愿一下。
+>pe
+#pc
+鸮|借人？
+我|把一位同事的编制临时划到总经理办公室，评完再划回去。
+鸮|……小雀，我得承认，我有点感动。这个办法完全合规，毫无道理，而且经得起审计。你长大了。
+#pe
+旁|最终方案是萧主任提的：把茶水间那台坏掉的咖啡机，以“设备类员工”的名义，编入总经理办公室。
+旁|编制三人，不合格一人。向上取整，刚刚好。
+鹅|咖啡机，年度绩效：不合格。评语我来写。
+旁|她写得很认真。我凑过去看了一眼：
+旁|“该同事在岗三年，从不迟到早退，从不顶撞领导，从未犯过任何错误。唯一的问题是不出咖啡。”
+我|（我忽然意识到，去掉最后一句，这段评语适用于公司里的大多数人。）
+旁|按规定，不合格者进入“优化”流程。而优化一台设备，需要十七个签字。所以，它至今还在茶水间。
+@ch 第十二章|视察|“要让领导看到一切，除了实际情况。”
+@bg office
+旁|月底的最后一天。一封邮件让全公司的羽毛都竖了起来：集团鹰董事长，今天下午亲临视察。
+旁|据说，他是带着一张打印出来的帖子来的。
+鹤|*完了完了！鹰董最恨三件事：效率低、不透明、乱花钱！
+我|（正好是我们这个月的三项工作成果。）
+鸮|不必惊慌。视察是一门艺术：要让领导看到一切，除了实际情况。
+鸮|我已安排研发二部全体到一楼大厅列队鼓掌。这将是他们三年来的第一项产出。
+鹊|好消息！我做了八十页PPT，其中七十九页是封面！
+鸽|咕……新版本我也准备好演示了。
+我|真的做完了？
+鸽|演示做完了。
+鸮|很好，那演示就不必演示了。参观路线我已安排妥当：先看荣誉墙，再看企业文化长廊，最后听四十分钟汇报。
+鸮|茶水间以“设备升级施工”为由临时封闭，白主管的工位以“核心技术保密”为由临时封闭。至于白主管本人，今天下午在外地出差。
+鸽|咕？我去哪儿出差？
+鸮|天台。
+@bg meeting
+旁|下午三点，会议室。空气安静得能听见茶水间那只蜘蛛结网的声音。
+鹰|都坐。我只问一个问题：你们这个月，到底干成了什么？
+旁|鹤总看向萧主任，萧主任看向天花板，天花板看向我。
+?把鹤总的“愿景”讲得天花乱坠=>5a;h+2
+?用萧主任式的长句回答=>5b;x+2
+?说实话=>5c;z+2
+#5a
+我|鹰董，鹤总带领我们完成了效率、透明、节约三大战略的顶层设计！
+鹰|落地了吗？
+我|顶层设计的精髓，就在于它在顶层。落地的话，就不是顶层了。
+鹤|*说得好！
+@end
+#5b
+我|鹰董，就目前阶段而言，在综合考虑各方面因素、并充分尊重历史沿革与现实条件的前提下，我们不能排除，本月的各项工作已经在某种程度上，取得了一些从长远来看不宜过早加以否定的、阶段性的、框架性的进展的可能性。
+鹰|……什么意思？
+鸮|（欣慰地）意思是没有。但他说得很好。
+@end
+#5c
+我|鹰董，这个月我们成立了一个四十二人的委员会，发了一篇内容保密的通稿，做了一次满意度100%的调研，还上线了一个只会说“下周”的机器人。
+我|另外，茶水间的咖啡机坏了三年，至今没修好。上周，它被评为了不合格员工。
+旁|空气凝固了。只有英武在角落里小声重复：“不合格员工。”
+鹰|……三十年了。第一次有人在汇报里跟我说人话。
+@end
+#E1
+@fin 1|首席愿景解释官|你被提拔为“首席愿景解释官”，职责是向全公司解释鹤总到底说了什么。<br>鹤总本人也经常前来咨询。<br>你的工资涨了，头发少了。两者在统计上高度相关。
+#E2
+@fin 2|青出于蓝|萧主任递给你一副圆框眼镜：“我退休后，公司需要有人确保它继续留在原地。”<br>你戴上眼镜，世界变得模糊了。恰到好处。<br>多年后，新来的助理问你公司到底是做什么的。你微笑着说：“好问题，我建议成立一个委员会来研究。”
+#E3
+@fin 3|人话|鹰董当场拍板：咖啡机今天就换，十七个签字全免。这是云栖科技成立以来办成的第一件事。<br>效率提升委员会随即宣布：该成果系在本委员会指导下取得。<br>你荣获年度最佳员工，奖品是那台旧咖啡机。蜘蛛还在上面，它现在是你的直属下属。
+#E4
+@fin 4|一切照旧|视察圆满结束。鹰董的评价是：“没看出问题。”萧主任说，这是最高评价。<br>第二天，鹤总又想了一整夜：“小雀！我们要创新！”<br>门，被轻轻敲了三下。
+`;
+const CH={鹤:{n:'鹤总',r:'总经理 · 丹顶鹤',f:'crane',c:'#d8392f',h:1},鸮:{n:'萧主任',r:'行政总监 · 猫头鹰',f:'owl',c:'#8a6332',h:.98},鹊:{n:'喜春',r:'市场经理 · 喜鹊',f:'magpie',c:'#2f6fe0',h:.93},鸽:{n:'白歌',r:'研发主管 · 鸽子',f:'pigeon',c:'#6f7fc4',h:.96},鹅:{n:'齐娥',r:'财务总监 · 企鹅',f:'penguin',c:'#d98a12',h:.92},鹦:{n:'英武',r:'实习生 · 鹦鹉',f:'parrot',c:'#2aa84a',h:.95},鹰:{n:'鹰董',r:'集团董事长 · 白头鹰',f:'eagle',c:'#9a7a1c',h:1.03},我:{n:'麻小雀',r:'总经理助理 · 麻雀（我）',f:'sparrow',c:'#b0703f',h:.86},典:{n:'小雀职场词典',r:'官话 → 人话',c:'#c79a1a'},旁:{}};
+const EN=['首席愿景解释官','青出于蓝','人话','一切照旧'],VN={h:'鹤总信任',x:'萧主任赏识',z:'良心'};
+const $=i=>document.getElementById(i),N=[],L={};
+S.trim().split('\n').forEach(l=>{l=l.trim();if(!l)return;
+ if(l[0]=='#')L[l.slice(1)]=N.length;
+ else if(l[0]=='?'){let m=l.slice(1).split('=>'),r=m[1].split(';'),o={t:m[0],go:r[0],e:r[1]||''},p=N[N.length-1];if(p&&p.c)p.c.push(o);else N.push({c:[o]})}
+ else if(l[0]=='>')N.push({go:l.slice(1)});
+ else if(l[0]=='@'){let sp=l.indexOf(' '),k=sp>0?l.slice(1,sp):l.slice(1);N.push({k,a:sp>0?l.slice(sp+1):''})}
+ else{let p=l.indexOf('|');N.push({s:l.slice(0,p),t:l.slice(p+1)})}});
+const A=window.ASSETS||{},U=n=>A[n]||'assets/'+n;let LS;try{LS=localStorage;LS.bvT='1'}catch(e){LS={}}
+$('title').style.backgroundImage='url('+U('bg_title.jpg')+')';
+['crane','owl','magpie','pigeon','penguin','parrot','eagle','sparrow'].forEach(f=>new Image().src=U(f+'.webp'));
+['office','meeting','pantry','bar','home'].forEach(f=>new Image().src=U('bg_'+f+'.jpg'));
+function goFull(){if(!matchMedia('(pointer:coarse)').matches)return;try{const d=document.documentElement,p=d.requestFullscreen&&d.requestFullscreen();if(p&&p.then)p.then(()=>{try{screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>{})}catch(e){}}
+let i=0,cur=0,v={h:0,x:0,z:0},bgc='black',chap='',tm=null,at=null,full='',wait='',hist=[],auto=0,snd=1,AC,bgF=0,tt;
+function beep(f,d=.06,vol=.035){if(!snd)return;try{AC=AC||new AudioContext();const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;g.gain.value=vol;g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.connect(g).connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),2000)}
+function anim(e,c){e.classList.remove('in','hop','shake');void e.offsetWidth;e.classList.add(c)}
+function setBg(b){bgc=b;const e=[$('bgA'),$('bgB')];bgF^=1;e[bgF].style.backgroundImage=b=='black'?'none':'url('+U('bg_'+b+'.jpg')+')';e[bgF].style.opacity=1;e[bgF^1].style.opacity=0}
+function spr(e,k,act){if(!k){e.classList.remove('on','act');e.dataset.k='';return}
+ if(e.dataset.k!=k){e.dataset.k=k;e.src=U(CH[k].f+'.webp');e.style.height=CH[k].h*97+'%';e.classList.add('on');anim(e,'in')}
+ else if(act&&!e.classList.contains('act'))anim(e,'hop');
+ e.classList.toggle('act',!!act)}
+function dimAll(){$('spL').classList.remove('act');$('spR').classList.remove('act')}
+function say(n){const c=CH[n.s],d=$('dlg');let t=n.t,sh=0;if(t[0]=='*'){t=t.slice(1);sh=1}
+ $('nm').classList.toggle('hide',!c.n);if(c.n){$('nm').innerHTML=c.n+'<small>'+c.r+'</small>';$('nm').style.background='linear-gradient(100deg,'+c.c+','+c.c+'cc)'}
+ if(n.s=='我'){spr($('spL'),'我',1);$('spR').classList.remove('act')}else if(c.f){spr($('spR'),n.s,1);$('spL').classList.remove('act')}else dimAll();
+ d.className=n.s=='典'?'dict':n.s=='旁'?'nar':t[0]=='（'?'th':'';if(sh)anim($('stage'),'shake');
+ full=t;hist.push((c.n?'<b>'+c.n+'</b>':'')+t);let k=0;clearInterval(tm);clearTimeout(at);const tx=$('tx');let fs=1;tx.style.setProperty('--k',1);tx.textContent=full;while(tx.scrollHeight>tx.clientHeight+2&&fs>.5){fs-=.04;tx.style.setProperty('--k',fs)}tx.textContent='';$('nx').classList.remove('show');
+ if(n.s=='典')beep(880,.25,.04);
+ tm=setInterval(()=>{$('tx').textContent=full.slice(0,++k);if(k>=full.length)fin()},24)}
+function fin(){clearInterval(tm);tm=null;$('tx').textContent=full;$('nx').classList.add('show');if(auto)at=setTimeout(()=>{if(wait=='say')step()},1300+full.length*55)}
+function step(){for(;;){cur=i;const n=N[i++];if(!n)return;
+ if(n.s){wait='say';say(n);return}
+ if(n.go){i=L[n.go];continue}
+ if(n.c){wait='ch';dimAll();$('nx').classList.remove('show');const d=$('ch');d.innerHTML='<div class="q">—— 麻小雀，你怎么说？ ——</div>';d.classList.remove('hide');
+  n.c.forEach((o,j)=>{const b=document.createElement('button');b.className='cb';b.style.animationDelay=j*.1+'s';b.textContent=o.t;
+   b.onclick=e=>{e.stopPropagation();beep(660,.08);setTimeout(()=>beep(990,.12),80);const fx=(o.e.match(/[hxz][+-]\d+/g)||[]);fx.forEach(m=>v[m[0]]+=+m.slice(1));v.n=(v.n||0)+1;
+    if(fx.length)toast(fx.map(m=>VN[m[0]]+' '+m.slice(1)).join('　'));hist.push('<span class="c">▶ '+o.t+'</span>');d.classList.add('hide');i=L[o.go];step()};d.appendChild(b)});return}
+ if(n.k=='bg'){setBg(n.a);spr($('spL'));spr($('spR'));continue}
+ if(n.k=='ch'){wait='card';const a=n.a.split('|');chap=a[0]+'　'+a[1];$('chap').textContent=chap;spr($('spL'));spr($('spR'));
+  $('card').innerHTML='<div class="en">'+a[0]+'</div><h1 class="serif">'+a[1]+'</h1><div class="ln"></div><p class="sub serif">'+a[2]+'</p><div class="hint">点击继续</div>';showCard();return}
+ if(n.k=='end'){i=L[v.z>=.6*((v.n||10)+1)&&v.z>=v.h&&v.z>=v.x?'E3':v.h>v.x?'E1':v.x>v.h?'E2':'E4'];continue}
+ if(n.k=='fin'){wait='fin';const a=n.a.split('|');let u=JSON.parse(LS.bvE||'[]');if(!u.includes(a[0]))u.push(a[0]);LS.bvE=JSON.stringify(u);beep(523,.5,.05);setTimeout(()=>beep(784,.7,.05),200);
+  $('card').innerHTML='<div class="en">ENDING 0'+a[0]+'</div><h1 class="serif" style="font-size:3.8em">'+a[1]+'</h1><div class="ln"></div><p>'+a[2]+'</p><div class="st">鹤总信任 '+v.h+'　·　萧主任赏识 '+v.x+'　·　良心 '+v.z+'　｜　已解锁结局 '+u.length+' / 4</div><div class="hint">点击返回标题，试试别的选择</div>';showCard();return}}}
+function showCard(){const c=$('card');c.classList.remove('hide');c.style.animation='none';void c.offsetWidth;c.style.animation=''}
+function hideAll(){['card','ch','log','title'].forEach(x=>$(x).classList.add('hide'))}
+function title(){wait='';clearInterval(tm);clearTimeout(at);hideAll();$('title').classList.remove('hide');$('un').textContent='已解锁结局 '+JSON.parse(LS.bvE||'[]').length+' / 4';$('ct').classList.toggle('hide',!LS.bvS2)}
+function start(at){goFull();i=at||0;v={h:0,x:0,z:0,n:0};hist=[];chap='';$('chap').textContent='';setBg('black');spr($('spL'));spr($('spR'));$('tx').textContent='';$('nm').classList.add('hide');hideAll();step()}
+function load(){if(!LS.bvS2)return toast('没有存档');const s=JSON.parse(LS.bvS2);i=s.cur;v=s.v;hist=s.hist;chap=s.chap;$('chap').textContent=chap;setBg(s.bg);spr($('spL'),s.L);spr($('spR'),s.R);hideAll();step();toast('读档成功')}
+$('stage').onclick=()=>{if(wait=='say'){clearTimeout(at);if(tm)fin();else{beep(520,.03,.02);step()}}
+ else if(wait=='card'){$('card').classList.add('hide');step()}else if(wait=='fin')title()};
+const B=(id,f)=>$(id).onclick=e=>{e.stopPropagation();beep(600,.04);f()};
+B('st',start);B('ct',load);B('bl',load);B('bt',title);
+B('bs',()=>{if(wait!='say'&&wait!='ch')return;LS.bvS2=JSON.stringify({cur,v,bg:bgc,chap,L:$('spL').dataset.k||'',R:$('spR').dataset.k||'',hist:wait=='say'?hist.slice(0,-1):hist});toast('已存档')});
+B('ba',()=>{auto^=1;$('ba').classList.toggle('onx',!!auto);if(auto&&wait=='say'&&!tm)step();if(!auto)clearTimeout(at)});
+B('bm',()=>{snd^=1;$('bm').classList.toggle('onx',!!snd)});
+function showLog(h,t){$('log').innerHTML='<h2 class="serif">'+t+'</h2>'+h+'<p style="color:#8d93ad;text-align:center">（点击任意处关闭）</p>';$('log').classList.remove('hide')}
+B('bh',()=>{showLog(hist.map(h=>'<p>'+h+'</p>').join(''),'对话记录');$('log').scrollTop=1e6});
+B('gl',()=>{const u=JSON.parse(LS.bvE||'[]');showLog(EN.map((e,j)=>'<p><b>结局 0'+(j+1)+'</b>'+(u.includes(''+(j+1))?e:'？？？（尚未解锁）')+'</p>').join(''),'结局图鉴')});
+B('cs',()=>showLog(N.map((n,j)=>n.k=='ch'?'<button class="cb" data-i="'+j+'">'+n.a.split('|').slice(0,2).join('　')+'</button>':'').join(''),'章节选择'));
+$('log').onclick=e=>{e.stopPropagation();$('log').classList.add('hide');const d=e.target.dataset.i;if(d!=null){beep(600,.04);start(+d)}};
+document.onkeydown=e=>{if((e.key==' '||e.key=='Enter')&&$('title').classList.contains('hide')&&$('log').classList.contains('hide')&&$('ch').classList.contains('hide')){e.preventDefault();$('stage').click()}};
+title();
+</script></body></html>
